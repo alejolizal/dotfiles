@@ -5,16 +5,25 @@ return {
     dependencies = {
       "folke/snacks.nvim",
     },
-    config = function()
-      require("claudecode").setup({
-        -- Configuración por defecto
-        -- El plugin creará un servidor WebSocket que Claude Code CLI puede usar
-      })
-    end,
+    config = true,
     keys = {
-      -- Atajos de teclado opcionales para interactuar con Claude
-      { "<leader>cc", "<cmd>ClaudeCode<cr>", desc = "Open Claude Code" },
-      { "<leader>ct", "<cmd>ClaudeCodeToggle<cr>", desc = "Toggle Claude Code" },
+      -- Grupo AI/Claude
+      { "<leader>a", nil, desc = "AI/Claude Code" },
+
+      -- Comandos principales
+      { "<leader>ac", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude" },
+      { "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
+      { "<leader>ar", "<cmd>ClaudeCode --resume<cr>", desc = "Resume Claude" },
+      { "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
+      { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Model" },
+
+      -- Agregar archivos/buffers
+      { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add current buffer" },
+      { "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Send to Claude" },
+
+      -- Manejo de diffs
+      { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
+      { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
     },
   },
 }

@@ -3,5 +3,18 @@
 -- Add any additional options here
 
 -- Configuración del portapapeles del sistema
--- Permite copiar/pegar entre Neovim y otras aplicaciones
-vim.opt.clipboard = "unnamedplus" -- Usa el portapapeles del sistema (+) para todas las operaciones de yank/paste
+-- OSC 52: Permite copiar/pegar a través de SSH sin X11
+vim.g.clipboard = {
+  name = "OSC 52",
+  copy = {
+    ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+    ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+  },
+  paste = {
+    ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
+    ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+  },
+}
+
+-- Usar clipboard del sistema para todas las operaciones yank/paste
+vim.opt.clipboard = "unnamedplus"

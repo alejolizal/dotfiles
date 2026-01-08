@@ -1,0 +1,51 @@
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Archivos temporales
+*.tmp
+*.bak
+*.backup
+*.log
+
+# Datos y caché de Neovim
+nvim/.netrwhist
+nvim/plugin/
+nvim/lazy-lock.json.backup
+nvim/spell/
+
+# Cache de plugins (se regenera automáticamente)
+nvim/plugin-cache/
+nvim/.lazy/
+
+# Datos locales que no deben respaldarse
+*.local
+.luarc.json
+
+# Información sensible
+*secret*
+*password*
+*token*
+*.pem
+*.key
+
+# Node modules si hay algún script
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Carpetas de compilación
+build/
+dist/
+
+# IDE
+.vscode/
+.idea/

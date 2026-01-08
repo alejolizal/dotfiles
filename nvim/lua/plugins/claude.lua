@@ -5,12 +5,11 @@ return {
     dependencies = {
       "folke/snacks.nvim",
     },
-    config = function()
-      require("claudecode").setup({
-        -- Ruta explícita al binario de Claude Code
-        claude_path = vim.fn.expand("~/.local/bin/claude"),
-      })
-    end,
+    opts = {
+      -- Ruta explícita al binario de Claude Code
+      terminal_cmd = vim.fn.expand("~/.local/bin/claude"),
+    },
+    config = true,
     keys = {
       -- Grupo AI/Claude
       { "<leader>a", nil, desc = "AI/Claude Code" },

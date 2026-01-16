@@ -104,6 +104,34 @@ return {
         "DapBreakpointCondition",
         { text = "❓", texthl = "DapBreakpoint", linehl = "", numhl = "" }
       )
+
+      -- Configuración de Java Debug Remoto (para Spring Boot)
+      -- Esto permite conectar a aplicaciones Java corriendo en modo debug
+      dap.adapters.java_remote = function(callback)
+        callback({
+          type = "server",
+          host = "127.0.0.1",
+          port = 5005,
+        })
+      end
+
+      dap.configurations.java = dap.configurations.java or {}
+      table.insert(dap.configurations.java, {
+        type = "java_remote",
+        request = "attach",
+        name = "Attach to siimple-ms (port 5005)",
+        hostName = "127.0.0.1",
+        port = 5005,
+      })
+      table.insert(dap.configurations.java, {
+        type = "java_remote",
+        request = "attach",
+        name = "Attach to Remote Java (custom port)",
+        hostName = "127.0.0.1",
+        port = function()
+          return vim.fn.input("Port: ", "5005")
+        end,
+      })
     end,
   },
 

@@ -1,0 +1,26 @@
+[user]
+    email = alejandroliz.liz@gmail.com
+    name = alejolizal
+
+[core]
+    editor = nvim
+
+[alias]
+    # Aliases básicos
+    st = status
+    co = checkout
+    br = branch
+    ci = commit
+
+    # Log visual con gráfico y fecha
+    lg = log --graph --pretty=format:'%C(yellow)%h %C(green)%ad %C(white)%s %C(cyan)[%an]%C(reset)' --date=short
+
+    # Ver resumen de un commit (sin diff)
+    info = show --stat --format='%C(yellow)Commit: %h%C(reset)%n%C(green)Fecha: %ad%C(reset)%n%C(cyan)Autor: %an <%ae>%C(reset)%n%n%C(white)%s%C(reset)%n%n%b' --date=short
+
+    # Ver detalle completo de un commit (con diff)
+    detail = show --format='%C(yellow)Commit: %h%C(reset)%n%C(green)Fecha: %ad%C(reset)%n%C(cyan)Autor: %an <%ae>%C(reset)%n%n%C(white)%s%C(reset)%n%n%b' --date=short
+
+    # Otros útiles
+    unstage = reset HEAD --
+    last = log -1 HEAD

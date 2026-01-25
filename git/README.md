@@ -11,49 +11,83 @@ git/
 └── README.md
 ```
 
-## Respaldar configuración actual
+## Activar configuración
 
 ```bash
-cp ~/.gitconfig ~/dotfiles/git/
-cp ~/.gitignore_global ~/dotfiles/git/
+# Opción 1: Include (recomendado - no sobrescribe tu .gitconfig)
+git config --global include.path ~/dev/dotfiles/git/.gitconfig
+
+# Opción 2: Symlink (reemplaza tu .gitconfig)
+ln -sf ~/dev/dotfiles/git/.gitconfig ~/.gitconfig
 ```
 
-## Restaurar configuración
+## Aliases personalizados
+
+| Alias | Uso | Descripción |
+|-------|-----|-------------|
+| `st` | `git st` | Status abreviado |
+| `co` | `git co <branch>` | Checkout |
+| `br` | `git br` | Listar branches |
+| `ci` | `git ci -m "msg"` | Commit |
+| `lg` | `git lg -20` | Log visual con gráfico, fecha y autor |
+| `info` | `git info <hash>` | Resumen del commit + archivos modificados |
+| `detail` | `git detail <hash>` | Resumen del commit + diff completo |
+| `unstage` | `git unstage <file>` | Quitar archivo del staging |
+| `last` | `git last` | Ver último commit |
+
+## Ejemplos de uso
+
+### `git lg` - Log visual
 
 ```bash
-# Opción 1: Symlinks
-ln -sf ~/dotfiles/git/.gitconfig ~/.gitconfig
-ln -sf ~/dotfiles/git/.gitignore_global ~/.gitignore_global
-
-# Opción 2: Include en .gitconfig existente
-git config --global include.path ~/dotfiles/git/.gitconfig
+git lg -10
 ```
 
-## Configuraciones comunes
-
-### Información de usuario
-
-```bash
-git config --global user.name "Tu Nombre"
-git config --global user.email "tu@email.com"
+Salida:
+```
+* a1b2c3d 2025-01-20 Agregar validación de inputs [alejolizal]
+* e4f5g6h 2025-01-19 Fix bug en login [alejolizal]
+| * i7j8k9l 2025-01-18 Feature experimental [otro-dev]
+|/
+* m0n1o2p 2025-01-17 Initial commit [alejolizal]
 ```
 
-### Aliases útiles
+### `git info` - Resumen de commit
 
 ```bash
-git config --global alias.st status
-git config --global alias.co checkout
-git config --global alias.br branch
-git config --global alias.ci commit
-git config --global alias.unstage 'reset HEAD --'
-git config --global alias.last 'log -1 HEAD'
-git config --global alias.lg "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+git info HEAD
 ```
 
-### Herramientas
+Salida:
+```
+Commit: a1b2c3d
+Fecha: 2025-01-20
+Autor: alejolizal <alejandroliz.liz@gmail.com>
+
+Agregar validación de inputs
+
+Se agregó validación para prevenir inyección SQL.
+
+ src/validation.js | 25 +++++++++++++
+ src/forms.js      |  8 ++--
+ 2 files changed, 30 insertions(+), 3 deletions(-)
+```
+
+### `git detail` - Commit con diff
 
 ```bash
-git config --global core.editor nvim
-git config --global merge.tool vimdiff
-git config --global diff.tool vimdiff
+git detail HEAD~1
+```
+
+Muestra lo mismo que `info` pero incluye el diff completo de los cambios.
+
+## Verificar configuración
+
+```bash
+# Ver que se cargaron los aliases
+git config --global --list | grep alias
+
+# Probar
+git lg -5
+git info HEAD
 ```

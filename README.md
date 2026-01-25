@@ -126,12 +126,16 @@ sdk default java 21.0.9-tem
 java -version
 ```
 
-### Wezterm (opcional)
+### WezTerm (en Windows)
 
-```bash
-# Crear symlink a la configuración de Wezterm
-ln -sf ~/dotfiles/wezterm ~/.config/wezterm
+WezTerm es el terminal que uso desde Windows para conectar a WSL. La config debe copiarse en Windows:
+
+```powershell
+# PowerShell como Admin - crear symlink
+New-Item -ItemType SymbolicLink -Path "$HOME\.wezterm.lua" -Target "\\wsl.localhost\Ubuntu\home\alejoliz\dev\dotfiles\wezterm\.wezterm.lua"
 ```
+
+Ver `wezterm/README.md` para más detalles.
 
 ### Git (opcional)
 

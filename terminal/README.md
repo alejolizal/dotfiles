@@ -1,65 +1,66 @@
 # Configuraciones de Terminal/Shell
 
-Esta carpeta contiene configuraciones para diferentes shells.
+Configuraciones de Zsh con Oh My Zsh y Powerlevel10k.
 
-## Estructura
+## Archivos
 
 ```
 terminal/
-├── fish/          # Fish shell
-│   └── config.fish
-├── zsh/           # Zsh shell
-│   ├── .zshrc
-│   ├── .zshenv
-│   └── aliases.zsh
-└── bash/          # Bash shell
-    ├── .bashrc
-    ├── .bash_profile
-    └── .bash_aliases
+├── .p10k.zsh      # Tema Powerlevel10k
+└── README.md
 ```
 
-## Fish Shell
+## Powerlevel10k
+
+Tema configurado con:
+- **Estilo:** Lean (minimalista)
+- **Iconos:** Nerd Font + Powerline
+- **Prompt:** 2 líneas, transient prompt
+- **Hora:** 24h
+- **Frame:** Izquierdo, solid
+
+### Restaurar
 
 ```bash
-# Respaldar
-cp ~/.config/fish/config.fish ~/dotfiles/terminal/fish/
+# Copiar configuración de p10k
+cp ~/dev/dotfiles/terminal/.p10k.zsh ~/.p10k.zsh
 
-# Restaurar
-ln -sf ~/dotfiles/terminal/fish/config.fish ~/.config/fish/config.fish
+# Asegurar que .zshrc lo carga (ya debería estar si usas p10k)
+# [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 ```
 
-## Zsh
+### Requisitos
+
+1. **Oh My Zsh** instalado
+2. **Powerlevel10k** instalado:
+   ```bash
+   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+   ```
+3. **Nerd Font** instalada (ej: IosevkaTerm NF)
+4. En `.zshrc`: `ZSH_THEME="powerlevel10k/powerlevel10k"`
+
+### Reconfigurar
+
+Si quieres modificar el tema:
 
 ```bash
-# Respaldar
-cp ~/.zshrc ~/dotfiles/terminal/zsh/
-cp ~/.zshenv ~/dotfiles/terminal/zsh/
-
-# Restaurar
-ln -sf ~/dotfiles/terminal/zsh/.zshrc ~/.zshrc
-ln -sf ~/dotfiles/terminal/zsh/.zshenv ~/.zshenv
+p10k configure
 ```
 
-## Bash
+## Zsh plugins recomendados
+
+Agregar a `.zshrc` en la línea de plugins:
 
 ```bash
-# Respaldar
-cp ~/.bashrc ~/dotfiles/terminal/bash/
-cp ~/.bash_profile ~/dotfiles/terminal/bash/
-
-# Restaurar
-ln -sf ~/dotfiles/terminal/bash/.bashrc ~/.bashrc
-ln -sf ~/dotfiles/terminal/bash/.bash_profile ~/.bash_profile
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 ```
 
-## Temas y plugins comunes
+Instalar plugins:
 
-### Oh My Zsh
-- Ubicación: `~/.oh-my-zsh`
-- No se respalda todo, solo `.zshrc` con la configuración
+```bash
+# zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
-### Starship (prompt moderno)
-- Configuración: `~/.config/starship.toml`
-
-### tmux
-- Configuración: `~/.tmux.conf`
+# zsh-syntax-highlighting
+git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+```

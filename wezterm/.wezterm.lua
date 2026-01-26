@@ -94,6 +94,14 @@ config.inactive_pane_hsb = {
   brightness = 0.6,
 }
 
+-- Bordes sutiles pero visibles entre splits
+config.window_frame = {
+  border_left_width = '0.5cell',
+  border_right_width = '0.5cell',
+  border_bottom_height = '0.25cell',
+  border_top_height = '0.25cell',
+}
+
 -- ┌──────────────────────────────────────────────────────────────────────────────┐
 -- │                            6. OPTIMIZACIONES NEOVIM                          │
 -- └──────────────────────────────────────────────────────────────────────────────┘
@@ -138,6 +146,9 @@ config.colors = {
 		'#8a8fa3', '#de8fa8', '#d1e8a9', '#fff7b1',
 		'#a3d4d5', '#ffaeea', '#7fb4ca', '#f3f6f9',
 	},
+
+	-- Split borders (bordes entre paneles)
+	split = '#7fb4ca',  -- Azul claro cuando está activo
 }
 
 -- ┌──────────────────────────────────────────────────────────────────────────────┐

@@ -63,29 +63,24 @@ Respaldo organizado de configuraciones personales para desarrollo.
 
 ```
 dotfiles/
-├── nvim/              # Configuración de Neovim/LazyVim
-│   ├── init.lua       # Archivo principal de configuración
-│   ├── lazy-lock.json # Versiones fijadas de plugins
-│   ├── lua/
-│   │   ├── config/    # Configuraciones base
-│   │   │   ├── options.lua    # Opciones de Neovim (clipboard OSC 52)
-│   │   │   ├── keymaps.lua    # Atajos de teclado
-│   │   │   ├── autocmds.lua   # Autocomandos
-│   │   │   └── lazy.lua       # Configuración de lazy.nvim
-│   │   └── plugins/   # Plugins personalizados
-│   │       ├── java.lua       # Configuración jdtls + debugging
-│   │       ├── claude.lua     # Configuración claudecode.nvim
-│   │       ├── dap.lua        # Debug Adapter Protocol
-│   │       └── example.lua    # Ejemplos de LazyVim
-│   └── ftplugin/
-│       └── java.lua   # Configuraciones específicas para Java
-├── wezterm/           # Configuración de Wezterm terminal
-├── mason/             # Configuración de Mason (LSP/DAP/Linters)
-├── terminal/          # Configuraciones de shell (fish/zsh/bash)
-├── git/               # Configuraciones de Git
-├── scripts/           # Scripts útiles
-└── tools/             # Otras herramientas
-
+├── nvim/                      # Paquete Stow para Neovim
+│   └── .config/nvim/          # -> ~/.config/nvim
+│       ├── init.lua
+│       ├── lazy-lock.json
+│       └── lua/...
+├── terminal/                  # Paquete Stow para shell
+│   ├── .zshrc                 # -> ~/.zshrc
+│   └── .p10k.zsh              # -> ~/.p10k.zsh
+├── wezterm/                   # Paquete Stow para WezTerm
+│   └── .wezterm.lua           # -> ~/.wezterm.lua
+├── git/                       # Paquete Stow para Git
+│   └── .gitconfig             # -> ~/.gitconfig
+├── lazygit/                   # Paquete Stow para Lazygit
+│   └── .config/lazygit/       # -> ~/.config/lazygit
+│       └── config.yml
+├── mason/                     # Configuración de Mason (placeholder)
+├── scripts/                   # Scripts útiles
+└── tools/                     # Otras herramientas
 ```
 
 ## 🚀 Instalación
@@ -93,18 +88,46 @@ dotfiles/
 ### Clonar el repositorio
 
 ```bash
-git clone https://github.com/alejolizal/dotfiles.git ~/dotfiles
-cd ~/dotfiles
+git clone https://github.com/alejolizal/dotfiles.git ~/dev/dotfiles
+cd ~/dev/dotfiles
 ```
 
-### Instalar Neovim
+### Instalar GNU Stow
 
 ```bash
-# Crear symlink a la configuración de nvim
-ln -sf ~/dotfiles/nvim ~/.config/nvim
+sudo apt install stow
+```
 
-# Abrir Neovim (instalará plugins automáticamente)
-nvim
+### Aplicar configuraciones con Stow
+
+```bash
+cd ~/dev/dotfiles
+
+# Aplicar todos los paquetes (-t ~ especifica home como target)
+stow -t ~ nvim terminal git wezterm lazygit
+
+# O individualmente:
+# stow -t ~ nvim       # Crea ~/.config/nvim
+# stow -t ~ terminal   # Crea ~/.zshrc y ~/.p10k.zsh
+# stow -t ~ wezterm    # Crea ~/.wezterm.lua
+# stow -t ~ git        # Crea ~/.gitconfig
+# stow -t ~ lazygit    # Crea ~/.config/lazygit
+```
+
+### Desinstalar
+
+```bash
+cd ~/dev/dotfiles
+stow -t ~ -D nvim terminal git wezterm lazygit
+```
+
+### Comandos útiles de Stow
+
+```bash
+stow -t ~ -D nvim     # Eliminar symlinks de nvim
+stow -t ~ -R nvim     # Restow (eliminar y volver a crear)
+stow -t ~ --adopt nvim  # Adoptar archivos existentes al paquete
+stow -t ~ -n nvim     # Dry-run (ver qué haría sin ejecutar)
 ```
 
 Al abrir Neovim por primera vez, LazyVim instalará automáticamente todos los plugins según las versiones fijadas en `lazy-lock.json`.
@@ -128,7 +151,7 @@ java -version
 
 ### WezTerm (en Windows)
 
-WezTerm es el terminal que uso desde Windows para conectar a WSL. La config debe copiarse en Windows:
+WezTerm es el terminal que uso desde Windows para conectar a WSL. La config se aplica con Stow en Linux, pero también puede copiarse a Windows:
 
 ```powershell
 # PowerShell como Admin - crear symlink
@@ -136,13 +159,6 @@ New-Item -ItemType SymbolicLink -Path "$HOME\.wezterm.lua" -Target "\\wsl.localh
 ```
 
 Ver `wezterm/README.md` para más detalles.
-
-### Git (opcional)
-
-```bash
-# Aplicar configuración de Git
-git config --global include.path ~/dotfiles/git/.gitconfig
-```
 
 ## 🎮 Uso
 

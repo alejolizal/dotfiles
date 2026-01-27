@@ -8,43 +8,55 @@ Repositorio de configuraciones personales (dotfiles) para desarrollo. Sistema: U
 
 ## Arquitectura
 
+Usa GNU Stow para gestionar symlinks. Cada carpeta es un "paquete" que replica su estructura en `~`.
+
 ```
 dotfiles/
-├── nvim/           # Neovim con LazyVim (symlink a ~/.config/nvim)
-├── wezterm/        # Terminal WezTerm (se copia a Windows, no a Linux)
-├── git/            # Git config (se incluye via git config --global include.path)
-├── mason/          # Mason LSP/DAP (placeholder)
-├── terminal/       # Shell configs (placeholder)
-├── scripts/        # Scripts útiles (placeholder)
-└── tools/          # Otras herramientas (placeholder)
+├── nvim/                      # -> ~/.config/nvim (via stow)
+│   └── .config/nvim/
+├── terminal/                  # -> ~/.zshrc, ~/.p10k.zsh (via stow)
+├── wezterm/                   # -> ~/.wezterm.lua (via stow)
+├── git/                       # -> ~/.gitconfig (via stow)
+├── lazygit/                   # -> ~/.config/lazygit (via stow)
+├── mason/                     # Mason LSP/DAP (placeholder)
+├── scripts/                   # Scripts útiles (placeholder)
+└── tools/                     # Otras herramientas (placeholder)
 ```
 
 ## Comandos de Instalación
 
 ```bash
-# Neovim - crear symlink
-ln -sf ~/dev/dotfiles/nvim ~/.config/nvim
+# Requisito
+sudo apt install stow
 
-# Git - incluir configuración
-git config --global include.path ~/dev/dotfiles/git/.gitconfig
+# Aplicar todos los paquetes (-t ~ especifica home como target)
+cd ~/dev/dotfiles
+stow -t ~ nvim terminal git wezterm lazygit
 
-# WezTerm - en PowerShell como Admin (Windows)
+# Desinstalar
+stow -t ~ -D nvim terminal git wezterm lazygit
+```
+
+### WezTerm en Windows (opcional)
+
+```powershell
+# PowerShell como Admin
 New-Item -ItemType SymbolicLink -Path "$HOME\.wezterm.lua" -Target "\\wsl.localhost\Ubuntu\home\alejoliz\dev\dotfiles\wezterm\.wezterm.lua"
 ```
 
 ## Neovim
 
 - Framework: LazyVim
-- Versiones fijadas en `nvim/lazy-lock.json`
-- Clipboard OSC 52 configurado en `nvim/lua/config/options.lua` (funciona sobre SSH)
+- Versiones fijadas en `nvim/.config/nvim/lazy-lock.json`
+- Clipboard OSC 52 configurado en `nvim/.config/nvim/lua/config/options.lua` (funciona sobre SSH)
 
 ### Plugins clave
 
 | Plugin | Archivo | Propósito |
 |--------|---------|-----------|
-| nvim-jdtls | `lua/plugins/java.lua` | Java LSP + debugging con DAP |
-| claudecode.nvim | `lua/plugins/claude.lua` | Integración Claude Code |
-| nvim-dap | `lua/plugins/dap.lua` | Debug Adapter Protocol |
+| nvim-jdtls | `nvim/.config/nvim/lua/plugins/java.lua` | Java LSP + debugging con DAP |
+| claudecode.nvim | `nvim/.config/nvim/lua/plugins/claude.lua` | Integración Claude Code |
+| nvim-dap | `nvim/.config/nvim/lua/plugins/dap.lua` | Debug Adapter Protocol |
 
 ### Keymaps importantes
 

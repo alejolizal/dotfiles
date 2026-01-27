@@ -3,7 +3,7 @@
 -- Add any additional options here
 
 -- Clipboard para SSH remoto usando OSC 52
--- Permite copiar al clipboard de la terminal local
+-- Solo para COPIAR (paste usa Ctrl+Shift+V de la terminal)
 vim.g.clipboard = {
   name = 'OSC 52',
   copy = {
@@ -11,8 +11,10 @@ vim.g.clipboard = {
     ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
   },
   paste = {
-    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
-    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+    -- Desactivar paste de OSC 52 (causa timeouts)
+    -- Usar Ctrl+Shift+V en la terminal para pegar
+    ['+'] = function() return vim.split(vim.fn.getreg('+'), '\n') end,
+    ['*'] = function() return vim.split(vim.fn.getreg('*'), '\n') end,
   },
 }
 

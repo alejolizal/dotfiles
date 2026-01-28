@@ -88,18 +88,18 @@ config.enable_scroll_bar = false              -- Hide scrollbar
 config.hide_tab_bar_if_only_one_tab = true    -- Hide tab bar when single tab
 config.use_fancy_tab_bar = false              -- Simple tab bar
 
--- Oscurecer paneles inactivos para saber dónde estás
+-- Oscurecer paneles inactivos MUCHO más para saber dónde estás
 config.inactive_pane_hsb = {
-  saturation = 0.9,
-  brightness = 0.6,
+  saturation = 0.8,
+  brightness = 0.4,  -- Mucho más oscuro (era 0.6)
 }
 
--- Bordes sutiles pero visibles entre splits
+-- Bordes visibles entre splits (más gruesos para mejor visibilidad)
 config.window_frame = {
-  border_left_width = '0.5cell',
-  border_right_width = '0.5cell',
-  border_bottom_height = '0.25cell',
-  border_top_height = '0.25cell',
+  border_left_width = '1cell',
+  border_right_width = '1cell',
+  border_bottom_height = '0.5cell',
+  border_top_height = '0.5cell',
 }
 
 -- ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -149,6 +149,9 @@ config.colors = {
 
 	-- Split borders (bordes entre paneles)
 	split = '#7fb4ca',  -- Azul claro cuando está activo
+
+	-- Borde del panel activo (más visible)
+	compose_cursor = '#e0c15a',  -- Dorado como el cursor
 }
 
 -- ┌──────────────────────────────────────────────────────────────────────────────┐

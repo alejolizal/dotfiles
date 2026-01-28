@@ -15,7 +15,7 @@ local config = wezterm.config_builder()
 -- │                    🏢 TRABAJO: Configuración de VM                           │
 -- │  Descomentar para habilitar conexión SSH a mi-servidor-vm                   │
 -- └──────────────────────────────────────────────────────────────────────────────┘
--- local VM_HOST = 'mi-servidor-vm'  -- Cambia esto si tu hostname es diferente
+local VM_HOST = 'mi-servidor-vm'  -- Cambia esto si tu hostname es diferente
 
 -- ┌──────────────────────────────────────────────────────────────────────────────┐
 -- │                        2. FUNCIONES HELPER (SMART SPLITS)                    │
@@ -45,16 +45,16 @@ end
 -- ┌──────────────────────────────────────────────────────────────────────────────┐
 -- │                    🏢 TRABAJO: Detección de Paneles SSH                      │
 -- └──────────────────────────────────────────────────────────────────────────────┘
--- local function has_vm_pane(tab)
---   for _, p in ipairs(tab:panes()) do
---     local process = p:get_foreground_process_name() or ''
---     local title = p:get_title() or ''
---     if process:find('ssh') or title:find(VM_HOST) then
---       return true
---     end
---   end
---   return false
--- end
+local function has_vm_pane(tab)
+  for _, p in ipairs(tab:panes()) do
+    local process = p:get_foreground_process_name() or ''
+    local title = p:get_title() or ''
+    if process:find('ssh') or title:find(VM_HOST) then
+      return true
+    end
+  end
+  return false
+end
 
 -- ┌──────────────────────────────────────────────────────────────────────────────┐
 -- │                    3. CONFIGURACIÓN DE INICIO (GUI STARTUP)                  │
@@ -207,16 +207,16 @@ config.keys = {
     mods = 'CTRL|SHIFT',
     action = act.TogglePaneZoomState,
   },
-  {
-    key = 'u',
-    mods = 'CTRL|ALT',
-    action = act.SplitHorizontal { domain = 'CurrentPaneDomain' },
-  },
-  {
-    key = 'v',
-    mods = 'CTRL|ALT',
-    action = act.SplitVertical { domain = 'CurrentPaneDomain' },
-  },
+  -- {
+  --   key = 'u',
+  --   mods = 'CTRL|ALT',
+  --   action = act.SplitHorizontal { domain = 'CurrentPaneDomain' },
+  -- },
+  -- {
+  --   key = 'v',
+  --   mods = 'CTRL|ALT',
+  --   action = act.SplitVertical { domain = 'CurrentPaneDomain' },
+  -- },
 
   -- ┌────────────────────────────────────────────────────────────────────────────┐
   -- │              10.2. SMART NAVIGATION (Neovim Integration)                   │
@@ -274,38 +274,38 @@ config.keys = {
   -- │  IMPORTANTE: Descomentar estas versiones Y comentar las básicas arriba    │
   -- │  (las versiones básicas de Ctrl+Alt+U y V están en sección 10.1)          │
   -- └────────────────────────────────────────────────────────────────────────────┘
-  -- {
-  --   key = 'u',
-  --   mods = 'CTRL|ALT',
-  --   action = wezterm.action_callback(function(window, pane)
-  --     local tab = window:active_tab()
-  --
-  --     if has_vm_pane(tab) then
-  --       -- Ya existe un panel con SSH, dividir a la derecha
-  --       window:perform_action(
-  --         act.SplitPane {
-  --           direction = 'Right',
-  --           command = { args = { 'ssh', 'administrador@mi-servidor-vm' } },
-  --           size = { Percent = 50 },
-  --         },
-  --         pane
-  --       )
-  --     else
-  --       -- No hay panel SSH, ejecutar en el panel actual
-  --       pane:send_text('ssh administrador@mi-servidor-vm\n')
-  --     end
-  --   end),
-  -- },
-  --
-  -- {
-  --   key = 'v',
-  --   mods = 'CTRL|ALT',
-  --   action = act.SplitPane {
-  --     direction = 'Down',
-  --     command = { args = { 'ssh', 'administrador@mi-servidor-vm' } },
-  --     size = { Percent = 30 },
-  --   },
-  -- },
+  {
+    key = 'u',
+    mods = 'CTRL|ALT',
+    action = wezterm.action_callback(function(window, pane)
+      local tab = window:active_tab()
+
+      if has_vm_pane(tab) then
+        -- Ya existe un panel con SSH, dividir a la derecha
+        window:perform_action(
+          act.SplitPane {
+            direction = 'Right',
+            command = { args = { 'ssh', 'administrador@mi-servidor-vm' } },
+            size = { Percent = 50 },
+          },
+          pane
+        )
+      else
+        -- No hay panel SSH, ejecutar en el panel actual
+        pane:send_text('ssh administrador@mi-servidor-vm\n')
+      end
+    end),
+  },
+
+  {
+    key = 'v',
+    mods = 'CTRL|ALT',
+    action = act.SplitPane {
+      direction = 'Down',
+      command = { args = { 'ssh', 'administrador@mi-servidor-vm' } },
+      size = { Percent = 30 },
+    },
+  },
 
   -- ┌────────────────────────────────────────────────────────────────────────────┐
   -- │                        10.6. UTILIDADES                                    │

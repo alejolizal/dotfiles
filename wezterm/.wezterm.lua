@@ -207,6 +207,16 @@ config.keys = {
     mods = 'CTRL|SHIFT',
     action = act.TogglePaneZoomState,
   },
+  {
+    key = 'u',
+    mods = 'CTRL|ALT',
+    action = act.SplitHorizontal { domain = 'CurrentPaneDomain' },
+  },
+  {
+    key = 'v',
+    mods = 'CTRL|ALT',
+    action = act.SplitVertical { domain = 'CurrentPaneDomain' },
+  },
 
   -- ┌────────────────────────────────────────────────────────────────────────────┐
   -- │              10.2. SMART NAVIGATION (Neovim Integration)                   │
@@ -261,7 +271,8 @@ config.keys = {
 
   -- ┌────────────────────────────────────────────────────────────────────────────┐
   -- │                    🏢 TRABAJO: Conexión SSH a VM                           │
-  -- │  Descomentar para habilitar Ctrl+Alt+U y Ctrl+Alt+V                       │
+  -- │  IMPORTANTE: Descomentar estas versiones Y comentar las básicas arriba    │
+  -- │  (las versiones básicas de Ctrl+Alt+U y V están en sección 10.1)          │
   -- └────────────────────────────────────────────────────────────────────────────┘
   -- {
   --   key = 'u',

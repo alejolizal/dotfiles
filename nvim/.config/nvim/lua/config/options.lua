@@ -2,18 +2,18 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
--- Configuración del portapapeles del sistema
--- OSC 52: Permite copiar/pegar a través de SSH sin X11
+-- Configuración del portapapeles del sistema con win32yank (WSL)
 vim.g.clipboard = {
-  name = "OSC 52",
+  name = "win32yank",
   copy = {
-    ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
-    ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+    ["+"] = "win32yank.exe -i --crlf",
+    ["*"] = "win32yank.exe -i --crlf",
   },
   paste = {
-    ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
-    ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+    ["+"] = "win32yank.exe -o --lf",
+    ["*"] = "win32yank.exe -o --lf",
   },
+  cache_enabled = 0,
 }
 
 -- Usar clipboard del sistema para todas las operaciones yank/paste

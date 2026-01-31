@@ -114,9 +114,7 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#8a8fa3"
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-source /mnt/c/Users/aleja/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-export EDITOR="cursor --wait"
+export EDITOR="nvim"
 
 # Personal PATH prioritario para nvim AppImage
 export PATH=$HOME/.local/bin:/home/alejoliz/.opencode/bin:$PATH
@@ -140,5 +138,4 @@ export SDKMAN_DIR="$HOME/.sdkman"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-export PATH="$HOME/.local/bin:$PATH"
 

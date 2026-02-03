@@ -1,6 +1,107 @@
-# Reglas para Generacion de JIRAs Corporativos
+# Skill: /jira
 
-Este archivo contiene las plantillas y reglas para que Claude genere JIRAs consistentes.
+Genera tickets JIRA con plantillas corporativas.
+
+## Invocación
+
+- Comando: `/jira [tipo]`
+- Triggers: "crear jira", "generar jira", "ticket jira"
+
+## Tipos disponibles
+
+| Comando | Tipo | Descripción |
+|---------|------|-------------|
+| `/jira req` | Requerimiento | Nuevas funcionalidades |
+| `/jira ops` | Labor Operativa | Mantenimiento, configuraciones |
+| `/jira bug` | Reporte de Error | Bugs y problemas |
+| `/jira deploy` | Instalación | Despliegues en ambientes |
+
+Si no se especifica tipo, preguntar al usuario.
+
+---
+
+# Reglas para Generación de JIRAs Corporativos
+
+## Sintaxis de Formateo JIRA
+
+IMPORTANTE: Usar esta sintaxis al generar contenido para JIRA (no Markdown).
+
+### Texto
+```
+*negrita*
+_cursiva_
+-tachado-
++subrayado+
+{{monoespaciado}}
+```
+
+### Encabezados
+```
+h1. Título grande
+h2. Subtítulo
+h3. Más pequeño
+```
+
+### Listas
+```
+* item con bullet
+** sub-item
+# item numerado
+## sub-item numerado
+```
+
+### Links
+```
+[texto del link|https://url.com]
+[~usuario]  (mencionar usuario)
+```
+
+### Código
+```
+{code:java}
+public void hola() {}
+{code}
+
+{noformat}
+texto sin formato
+{noformat}
+```
+
+### Citas y Paneles
+```
+{quote}
+Texto citado
+{quote}
+
+{panel:title=Mi título}
+Contenido del panel
+{panel}
+```
+
+### Colores
+```
+{color:red}texto rojo{color}
+{color:#00875A}texto verde custom{color}
+```
+
+### Tablas
+```
+||encabezado 1||encabezado 2||
+|celda 1|celda 2|
+|celda 3|celda 4|
+```
+
+### Emojis
+```
+:)  :(  :P  (y)  (n)  (!)  (?)  (*)
+```
+
+### Línea divisoria
+```
+----
+```
+
+---
 
 ## Instrucciones para Claude
 
@@ -8,30 +109,16 @@ Cuando el usuario solicite crear un JIRA:
 1. Identificar el tipo de ticket (Requerimiento, Labor Operativa, Bug, Deploy)
 2. Usar la plantilla correspondiente de este documento
 3. Si faltan datos esenciales, solicitar al usuario antes de generar
-4. Generar el JIRA completo en formato markdown
+4. *Generar el JIRA usando sintaxis JIRA* (ver seccion anterior), NO Markdown
 5. Aplicar labels, nomenclatura de branches y commits segun las reglas
 
----
-
-## Tipos de Tickets
-
-### 1. Requerimiento
-Nuevas funcionalidades o cambios solicitados por el negocio
-
-### 2. Labor Operativa
-Tareas operativas, mantenimiento, configuraciones
-
-### 3. Reporte de Error
-Bugs o problemas en funcionamiento de aplicaciones
-
-### 4. Instalacion en Ambientes
-Despliegues en DEVX, CERX y ambientes legados
+*Nota:* Cuando el usuario pida "formato JIRA" o contenido para pegar en JIRA, usar la sintaxis de formateo JIRA (h1., *, ||tablas||, {code}, etc.) en lugar de Markdown.
 
 ---
 
 ## Plantilla: Requerimiento
 
-```markdown
+```
 **Titulo:** [REQ] [Nombre aplicacion] - Descripcion breve del requerimiento
 
 **Solicitante**
@@ -85,7 +172,7 @@ Tiempo estimado: [horas/dias]
 
 ## Plantilla: Labor Operativa
 
-```markdown
+```
 **Titulo:** [OPS] [Aplicacion/Sistema] - Descripcion de la labor
 
 **Tipo de Labor**
@@ -136,7 +223,7 @@ Tiempo: [horas]
 
 ## Plantilla: Reporte de Error
 
-```markdown
+```
 **Titulo:** [BUG] [Aplicacion] - Descripcion breve del error
 
 **Severidad**
@@ -203,33 +290,39 @@ Tiempo: [horas]
 
 ## Plantilla: Instalacion en Ambientes
 
-```markdown
-**Titulo:** [DEPLOY] [Aplicacion] - Instalacion en [Ambiente]
+```
+**Titulo:** [DEPLOY] Instalacion en [Ambiente] - [descripcion breve]
 
-**Aplicacion**
-- Nombre: [nombre completo]
-- Version: [x.y.z]
-- Repositorio: [URL del repo Git]
-- Branch/Tag: [nombre]
+**Aplicaciones a Desplegar**
 
-**Ambiente Destino**
-- [ ] DEVX - Desarrollo
-- [ ] CERX - Certificacion
-- [ ] Produccion
-- [ ] Legado: [especificar nombre del ambiente]
+||Aplicacion||Commit Hash||Cambios Properties||
+|[app-ms]|[abc1234]|Si / No|
+|[app-ui]|[def5678]|N/A|
 
-**Tipo de Instalacion**
-- [ ] Nueva instalacion
-- [ ] Actualizacion de version
-- [ ] Hotfix
-- [ ] Rollback
+*Notas:*
+- *Commit hash obligatorio para trazabilidad. Siempre preguntar al usuario (no asumir último commit).*
+- *Aplicaciones UI (-ui) no llevan properties, marcar N/A.*
+- *Si hay cambios de properties, detallar por aplicación en sección aparte.*
 
-**Componentes a Desplegar**
+**Cambios de Properties** (si aplica)
+
+*[nombre-aplicacion-ms]:*
+{code}
+# Propiedad agregada/modificada
+propiedad.nueva=valor
+propiedad.modificada=nuevo-valor
+{code}
+
+**Ambiente Destino:** [DEVX / CERX / Produccion / Legado: especificar]
+
+**Tipo de Instalacion:** [Nueva instalacion / Actualizacion / Hotfix / Rollback]
+
+**Componentes Incluidos**
 - [ ] Backend (Spring Boot)
 - [ ] Frontend (Vue.js)
 - [ ] Scripts de BD
 - [ ] Configuraciones
-- [ ] Dependencias externas
+- [ ] Jobs Batch
 
 **Pre-requisitos**
 - Java version: [ej: 11, 17]

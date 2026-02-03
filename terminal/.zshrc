@@ -114,17 +114,17 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#8a8fa3"
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-source /mnt/c/Users/aleja/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# source /mnt/c/Users/aleja/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 export EDITOR="cursor --wait"
 
-# Personal PATH prioritario para nvim AppImage
+# Personal PATH prioritario
 export PATH=$HOME/.local/bin:/home/alejoliz/.opencode/bin:$PATH
 
-# Alias para asegurar uso del nvim AppImage
-alias nvim="$HOME/.local/bin/nvim-wrapper"
+# Alias para nvim (snap)
+alias nvim="/snap/bin/nvim"
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

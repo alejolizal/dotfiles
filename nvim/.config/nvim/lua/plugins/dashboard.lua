@@ -17,6 +17,22 @@ return {
             Welcome, Alejo
           ]],
         },
+        sections = {
+          { section = "header" },
+          { section = "keys", gap = 1, padding = 1 },
+          { section = "startup" },
+          function()
+            return {
+              align = "center",
+              padding = 1,
+              text = {
+                { "  Neovim " .. tostring(vim.version()), hl = "footer" },
+                { "  |  ", hl = "NonText" },
+                { "󰒲 LazyVim " .. require("lazyvim.config").version, hl = "special" },
+              },
+            }
+          end,
+        },
       },
     },
   },

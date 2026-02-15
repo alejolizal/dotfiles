@@ -21,7 +21,7 @@ export EDITOR="nvim"
 
 # Personal PATH
 export PATH=$HOME/.local/bin:$HOME/.opencode/bin:$PATH
-# eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 setopt complete_in_word
 

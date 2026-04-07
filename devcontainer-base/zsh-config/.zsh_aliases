@@ -1,0 +1,27 @@
+# =============================================================================
+# Aliases para DevContainer SII
+# =============================================================================
+
+# Maven
+alias mvnc='mvn clean install -DskipTests'
+alias mvnr='mvn spring-boot:run'
+alias mvnt='mvn test'
+alias mvnv='mvn verify'
+
+# Vite / Node
+alias vd='npm run dev'
+alias vt='npm run test'
+alias vtu='npx vitest'
+alias vtc='npx vitest --coverage'
+alias ve2e='npx playwright test'
+
+# Tools
+alias lg='lazygit'
+alias ld='lazydocker'
+alias vi='nvim'
+alias vim='nvim'
+
+# Git
+alias gs='git status'
+alias gd='git diff'
+alias gl='git log --oneline -20'

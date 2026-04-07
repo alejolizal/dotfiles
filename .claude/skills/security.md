@@ -15,10 +15,35 @@ Consulta patrones de seguridad para resolver vulnerabilidades Checkmarx/OWASP en
 | `/security log` | Log Forging | CWE-117 |
 | `/security hsts` | HSTS Missing | CWE-346 |
 | `/security xss` | Cross-Site Scripting | CWE-79 |
+| `/security tampering` | Parameter Tampering | CWE-472 |
+| `/security binding` | Unsafe Object Binding | CWE-915 |
+| `/security zipslip` | Path Traversal / Zip Slip | CWE-22 |
+| `/security leak` | Resource Leak | CWE-404 |
+| `/security credentials` | Credenciales Hardcodeadas | CWE-798 |
 | `/security sca` | Dependencias vulnerables | - |
 | `/security sanitizers` | Sanitizadores reconocidos | - |
 
 Si no se especifica tema, mostrar índice de patrones disponibles.
+
+## Flujo de resolución con plantillas
+
+Cuando el usuario pida resolver un hallazgo Checkmarx:
+
+1. **Leer la plantilla de referencia** del hallazgo en `/home/dev/eventos/backend/eventos-ms/scripts/`:
+   - `Open_redirect.md` — Open Redirect (CWE-601)
+   - `Unsafe_Object_Binding.md` — Unsafe Object Binding (CWE-915)
+   - `missing_hsts_headers.md` — HSTS Missing (CWE-346)
+   - `reportes_Parameter_Tampering.md` — Parameter Tampering (CWE-472)
+   - `reportes_XSS.md` — Stored XSS en AlertasController (CWE-79)
+   - `reportes_XSS_2.md` — Stored XSS en DiagnosticoAlertasController (CWE-79)
+
+2. **Identificar** el archivo y línea exacta del hallazgo desde la plantilla
+
+3. **Aplicar el patrón de solución** de esta guía (secciones abajo)
+
+4. **Verificar** que el sanitizer/fix sea reconocido por Checkmarx (ver sección 6)
+
+5. **Si es falso positivo**, generar justificación para marcar como "Not Exploitable"
 
 ---
 
@@ -30,8 +55,13 @@ Si no se especifica tema, mostrar índice de patrones disponibles.
 2. [Log Forging (CWE-117)](#2-log-forging-cwe-117)
 3. [HSTS Missing (CWE-346)](#3-hsts-missing-cwe-346)
 4. [XSS (CWE-79)](#4-xss-cwe-79)
-5. [Dependencias SCA](#5-dependencias-sca)
-6. [Sanitizadores Reconocidos por Checkmarx](#6-sanitizadores-reconocidos-por-checkmarx)
+5. [Parameter Tampering (CWE-472)](#5-parameter-tampering-cwe-472)
+6. [Unsafe Object Binding (CWE-915)](#6-unsafe-object-binding-cwe-915)
+7. [Zip Slip / Path Traversal (CWE-22)](#7-zip-slip--path-traversal-cwe-22)
+8. [Resource Leak (CWE-404)](#8-resource-leak-cwe-404)
+9. [Credenciales Hardcodeadas (CWE-798)](#9-credenciales-hardcodeadas-cwe-798)
+10. [Dependencias SCA](#10-dependencias-sca)
+11. [Sanitizadores Reconocidos por Checkmarx](#11-sanitizadores-reconocidos-por-checkmarx)
 
 ---
 
@@ -245,7 +275,231 @@ public class JacksonConfig {
 
 ---
 
-## 5. Dependencias SCA
+## 5. Parameter Tampering (CWE-472)
+
+### Problema
+Checkmarx detecta que datos del usuario (`@RequestBody`) fluyen directamente a operaciones de base de datos (`repository.save()`) sin validación intermedia, permitiendo manipulación de parámetros.
+
+### Soluciones
+
+#### Opción A: Validación explícita con DTO + Validator (Recomendado)
+
+```java
+// DTO con restricciones
+@Getter @Setter
+public class EventoReq {
+    @NotBlank @Size(max = 100)
+    private String codigo;
+
+    @NotBlank @Pattern(regexp = "^[A-Z_]+$")
+    private String tipo;
+}
+
+// Validator dedicado
+@Component
+@RequiredArgsConstructor
+public class EventoValidator {
+    public void validate(EventoReq req) {
+        if (req.getCodigo() == null || !req.getCodigo().matches("^[A-Z0-9_-]+$")) {
+            throw new IllegalArgumentException("Código inválido");
+        }
+    }
+}
+
+// Controller con @Valid + validator
+@PostMapping("/eventos")
+public ResponseEntity<EventoResponse> crear(@Valid @RequestBody EventoReq req) {
+    validator.validate(req);
+    return ResponseEntity.ok(service.crear(req));
+}
+```
+
+#### Opción B: Mapeo explícito DTO → Entity (rompe flujo tainted)
+
+```java
+// En el Service — NO pasar el DTO directo al repository
+public EventoResponse crear(EventoReq req) {
+    EventoEntity entity = new EventoEntity();
+    entity.setCodigo(StringEscapeUtils.escapeHtml4(req.getCodigo()));
+    entity.setTipo(req.getTipo());
+    return mapper.toResponse(repository.save(entity));
+}
+```
+
+### Justificación para falso positivo
+```
+El DTO usa @Valid con Bean Validation (JSR 380). Los campos tienen @NotBlank,
+@Size y @Pattern que restringen los valores aceptados. Adicionalmente, un
+Validator dedicado valida reglas de negocio antes de persistir. No existe
+concatenación SQL directa — se usa JPA con parámetros tipados.
+```
+
+---
+
+## 6. Unsafe Object Binding (CWE-915)
+
+### Problema
+Checkmarx detecta que un `@RequestBody` con un objeto complejo expone setters públicos que podrían ser manipulados por un atacante para modificar campos no intencionados.
+
+### Soluciones
+
+#### Opción A: DTOs separados para entrada (Recomendado)
+
+```java
+// DTO de entrada — SOLO los campos que el usuario puede enviar
+@Getter @Setter
+public class AplicacionCreateReq {
+    @NotBlank
+    private String nombre;
+    @NotBlank
+    private String version;
+    // NO incluir id, fechaCreacion, estado, etc.
+}
+
+// En el Service — mapeo explícito
+public AplicacionResponse crear(AplicacionCreateReq req) {
+    AplicacionEntity entity = new AplicacionEntity();
+    entity.setNombre(req.getNombre());
+    entity.setVersion(req.getVersion());
+    entity.setEstado("ACTIVO"); // valor controlado por el server
+    return mapper.toResponse(repository.save(entity));
+}
+```
+
+#### Opción B: @JsonIgnoreProperties en el DTO
+
+```java
+@Getter @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class AplicacionReq {
+    @NotBlank
+    private String nombre;
+
+    @JsonIgnore // No se puede setear desde el request
+    private Long id;
+}
+```
+
+### Justificación para falso positivo
+```
+El DTO de entrada (XxxReq) solo expone los campos permitidos para el usuario.
+El mapeo a Entity se realiza de forma explícita en el Service, sin usar
+BeanUtils.copyProperties() ni ModelMapper automático. Los campos sensibles
+(id, fechas, estado) se controlan server-side.
+```
+
+---
+
+## 7. Zip Slip / Path Traversal (CWE-22)
+
+### Problema
+Al descomprimir archivos ZIP, el nombre de la entrada se resuelve directamente contra el directorio destino sin validar que la ruta resultante permanezca dentro del directorio permitido. Un ZIP malicioso con entradas como `../../etc/cron.d/malicious` puede escribir archivos arbitrarios en el sistema.
+
+### Solución
+
+```java
+// ANTES (vulnerable)
+Path out = targetDir.resolve(entry.getName());
+
+// DESPUÉS (seguro) — normalizar + validar
+Path out = targetDir.resolve(entry.getName()).normalize();
+if (!out.startsWith(targetDir)) {
+    throw new SecurityException("Zip Slip detectado: " + entry.getName());
+}
+```
+
+### Puntos clave
+- Siempre usar `.normalize()` para resolver `..` en la ruta
+- Validar con `.startsWith(targetDir)` que la ruta quede dentro del destino
+- Lanzar `SecurityException` si se detecta traversal
+- Aplica a `ZipInputStream`, `ZipFile`, `TarArchiveInputStream`, etc.
+
+### Proyecto de referencia
+- `centauri-batch`: `ZipLogExtractor.java`
+
+---
+
+## 8. Resource Leak (CWE-404)
+
+### Problema
+`Files.lines()` retorna un `Stream<String>` respaldado por un `BufferedReader` que debe cerrarse explícitamente. Si no se cierra, genera file handle leak que puede causar "Too many open files" al procesar muchos archivos.
+
+### Solución
+
+```java
+// ANTES (vulnerable — stream nunca se cierra)
+int totalLines = (int) Files.lines(logFile.toPath()).count();
+
+// DESPUÉS (seguro — try-with-resources)
+try (Stream<String> lines = Files.lines(logFile.toPath())) {
+    int totalLines = (int) lines.count();
+}
+```
+
+### Otros casos comunes
+
+```java
+// InputStream/OutputStream — siempre try-with-resources
+try (InputStream is = new FileInputStream(file);
+     BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+    // procesar
+}
+
+// Connection/Statement JDBC
+try (Connection conn = dataSource.getConnection();
+     PreparedStatement ps = conn.prepareStatement(sql)) {
+    // ejecutar
+}
+```
+
+### Puntos clave
+- Todo recurso que implemente `AutoCloseable` debe ir en try-with-resources
+- `Files.lines()`, `Files.list()`, `Files.walk()` retornan streams que DEBEN cerrarse
+- `BufferedReader`, `InputStream`, `OutputStream`, `Connection`, `Statement`, `ResultSet`
+
+### Proyecto de referencia
+- `centauri-batch`: `LogItemReader.java`
+
+---
+
+## 9. Credenciales Hardcodeadas (CWE-798)
+
+### Problema
+Contraseñas, tokens o API keys escritos en texto plano en archivos de configuración (`application.properties`, `application.yml`) o código fuente. Cualquier persona con acceso al repositorio puede ver las credenciales.
+
+### Solución
+
+```properties
+# ANTES (vulnerable)
+spring.datasource.url=jdbc:postgresql://10.30.230.21:5432/dbcentauri
+spring.datasource.username=centauri
+spring.datasource.password=6tT552j.d
+
+# DESPUÉS (seguro) — variables de entorno con defaults seguros
+spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/dbcentauri}
+spring.datasource.username=${DB_USERNAME:centauri}
+spring.datasource.password=${DB_PASSWORD:}
+```
+
+### Puntos clave
+- Usar `${ENV_VAR:default}` de Spring para externalizar credenciales
+- El default de password debe ser vacío (`${DB_PASSWORD:}`) — nunca un password real
+- El default de URL puede apuntar a localhost para desarrollo local
+- En produccion, las variables se configuran en el entorno (K8s secrets, Docker env, etc.)
+- Aplica a: passwords de BD, API keys, tokens JWT secret, claves de encriptacion
+
+### Alternativas
+- Spring Cloud Config Server
+- HashiCorp Vault
+- Kubernetes Secrets / ConfigMaps
+- Jasypt para encriptar properties
+
+### Proyecto de referencia
+- `centauri-batch`: `application.properties`
+
+---
+
+## 10. Dependencias SCA (Software Composition Analysis)
 
 ### Patrón para override de versiones vulnerables
 
@@ -262,41 +516,124 @@ public class JacksonConfig {
 </dependencyManagement>
 ```
 
-### Ejemplos comunes
+### Ejemplos Spring Boot 3.x (eventos-ms)
 
 ```xml
-<!-- CVE-2025-48976: DoS en commons-fileupload < 1.6.0 -->
-<dependency>
-    <groupId>commons-fileupload</groupId>
-    <artifactId>commons-fileupload</artifactId>
-    <version>1.6.0</version>
-</dependency>
+<dependencyManagement>
+    <dependencies>
+        <!-- CVE-2025-48976: DoS en commons-fileupload < 1.6.0 -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+        <!-- CVE-2025-8916: BouncyCastle < 1.79 -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.79</version>
+        </dependency>
+        <!-- CVE-2026-1225: logback < 1.5.25 -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.5.25</version>
+        </dependency>
+        <!-- CVE-2025-48924: commons-lang3 < 3.18.0 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.18.0</version>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
 
-<!-- CVE-2025-8916: BouncyCastle < 1.79 -->
-<dependency>
-    <groupId>org.bouncycastle</groupId>
-    <artifactId>bcprov-jdk18on</artifactId>
-    <version>1.79</version>
-</dependency>
+### Ejemplos Spring Boot 2.7.x (centauri-batch)
 
-<!-- CVE-2026-1225: logback < 1.5.25 -->
-<dependency>
-    <groupId>ch.qos.logback</groupId>
-    <artifactId>logback-core</artifactId>
-    <version>1.5.25</version>
-</dependency>
+**IMPORTANTE:** Si el proyecto usa BOM como `import` (no `<parent>`), los property
+overrides **NO funcionan**. Hay que usar entradas explícitas en `<dependencyManagement>`
+**ANTES** del BOM import. El orden importa: Maven usa la primera versión que encuentra.
 
-<!-- CVE-2025-48924: commons-lang3 < 3.18.0 -->
+Para proyectos con `<parent>` de Spring Boot se usan property overrides:
+
+```xml
+<properties>
+    <!-- SCA Remediation -->
+    <snakeyaml.version>1.33</snakeyaml.version>          <!-- CVE-2022-1471 (CRITICAL) + 6 más -->
+    <logback.version>1.2.13</logback.version>             <!-- CVE-2023-6481/6378 (HIGH) + 4 más -->
+    <xmlunit2.version>2.10.0</xmlunit2.version>           <!-- CVE-2024-31573 (CRITICAL, test) -->
+    <assertj.version>3.24.2</assertj.version>             <!-- CVE-2026-24400 (HIGH, test) -->
+    <json-path.version>2.9.0</json-path.version>          <!-- CVE-2023-51074 (MEDIUM, test) -->
+    <spring-framework.version>5.3.37</spring-framework.version> <!-- CVE-2025-41249 + 10 más -->
+</properties>
+```
+
+Y dependencias directas con version pin:
+
+```xml
+<!-- CVE-2024-1597: SQL Injection en PostgreSQL -->
 <dependency>
-    <groupId>org.apache.commons</groupId>
-    <artifactId>commons-lang3</artifactId>
-    <version>3.18.0</version>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>42.3.10</version>
+    <scope>runtime</scope>
 </dependency>
+<!-- CVE-2022-45868: Admin console exposure en H2 -->
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <version>2.2.224</version>
+</dependency>
+```
+
+Para proyectos con BOM `import`, usar `<dependencyManagement>` explícito:
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <!-- Overrides ANTES del BOM -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.33</version>
+        </dependency>
+        <!-- Para Spring Framework, usar su propio BOM -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-framework-bom</artifactId>
+            <version>5.3.37</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <!-- Spring Boot BOM al final -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>${spring.boot.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+### Verificación post-remediación
+
+```bash
+# Ver versiones resueltas
+mvn dependency:tree | grep -E "(snakeyaml|postgresql|logback|h2database|jackson)"
+
+# Compilar y testear
+mvn clean compile && mvn test
+
+# Re-scan Checkmarx
+./scripts/security/checkmarx-scan.sh
 ```
 
 ---
 
-## 6. Sanitizadores Reconocidos por Checkmarx
+## 11. Sanitizadores Reconocidos por Checkmarx
 
 ### Métodos que Checkmarx reconoce automáticamente
 
@@ -338,6 +675,7 @@ public static String sanitizeInput(String input) {
 
 ## Checklist de Seguridad para Nuevos Proyectos
 
+### API REST (microservicios)
 - [ ] Agregar `commons-text` para sanitización
 - [ ] Crear `SecurityUtils` con métodos de sanitización
 - [ ] Crear `SecurityHeaderFilter` para HSTS
@@ -346,13 +684,45 @@ public static String sanitizeInput(String input) {
 - [ ] Revisar `dependencyManagement` para CVEs conocidos
 - [ ] Usar tipos específicos en `ResponseEntity<TipoEspecifico>` en lugar de `ResponseEntity<?>`
 
+### Batch / Procesos sin HTTP
+- [ ] Crear `SecurityUtils` con `sanitizeForLogging()` (mismo patrón)
+- [ ] Externalizar credenciales con `${ENV_VAR:default}`
+- [ ] Proteger contra Zip Slip si procesa archivos comprimidos
+- [ ] Usar try-with-resources para `Files.lines()`, streams, readers
+- [ ] Revisar properties del BOM para override de versiones vulnerables
+
+---
+
+## Documentación de Remediación por Proyecto
+
+Documentos de referencia con ejemplos reales de remediación aplicada:
+
+| Proyecto | Tipo | Documento |
+|----------|------|-----------|
+| eventos-ms | SAST | `/home/dev/eventos/docs/backend/remediacion-seguridad-checkmarx.md` |
+| eventos-ms | SCA | `/home/dev/eventos/backend/eventos-ms/scripts/security/reports/remediacion-scan-2026-02-16.md` |
+| centauri-batch | SAST | `/home/dev/centauri/docs/batch/remediacion-seguridad-checkmarx.md` |
+| centauri-batch | SCA | `/home/dev/centauri/backend/centauri-batch/scripts/security/reports/remediacion-scan-2026-02-26.md` |
+
+### SecurityUtils por proyecto
+
+| Proyecto | Ruta | Métodos |
+|----------|------|---------|
+| eventos-ms | `eventos-ms/src/.../util/SecurityUtils.java` | sanitizeForLogging, escapeHtml4, isValidRut, validateAndAdjustLimit |
+| centauri-batch | `centauri-batch/src/.../util/SecurityUtils.java` | sanitizeForLogging, sanitizeMapForLogging, sanitizeString |
+
 ---
 
 ## Referencias
 
-- [CWE-601: Open Redirect](https://cwe.mitre.org/data/definitions/601.html)
+- [CWE-22: Path Traversal](https://cwe.mitre.org/data/definitions/22.html)
+- [CWE-79: XSS](https://cwe.mitre.org/data/definitions/79.html)
 - [CWE-117: Log Forging](https://cwe.mitre.org/data/definitions/117.html)
 - [CWE-346: HSTS Missing](https://cwe.mitre.org/data/definitions/346.html)
-- [CWE-79: XSS](https://cwe.mitre.org/data/definitions/79.html)
+- [CWE-404: Resource Leak](https://cwe.mitre.org/data/definitions/404.html)
+- [CWE-472: Parameter Tampering](https://cwe.mitre.org/data/definitions/472.html)
+- [CWE-601: Open Redirect](https://cwe.mitre.org/data/definitions/601.html)
+- [CWE-798: Hardcoded Credentials](https://cwe.mitre.org/data/definitions/798.html)
+- [CWE-915: Unsafe Object Binding](https://cwe.mitre.org/data/definitions/915.html)
 - [OWASP Top 10](https://owasp.org/Top10/)
 - [Apache Commons Text](https://commons.apache.org/proper/commons-text/)

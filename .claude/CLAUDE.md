@@ -10,12 +10,14 @@ Los skills están ubicados en `~/.claude/skills/`. Invocar con `/nombre-skill` o
 | `/teams [tipo]` | Generar mensaje Teams | "enviar teams", "mensaje teams" |
 | `/outlook [tipo]` | Generar correo Outlook | "correo", "email", "outlook" |
 | `/security [tema]` | Patrones seguridad Checkmarx | "checkmarx", "vulnerabilidad" |
+| `/perfiles [tipo]` | Configuración perfilamiento Gateway | "configurar perfiles", "perfilamiento gw", "rutas gateway" |
 
 ### Tipos por skill:
-- **jira**: `req`, `ops`, `bug`, `deploy`
+- **jira**: `req`, `ops`, `bug`, `deploy`, `trazabilidad`
 - **teams**: `solicitud`, `info`, `bloqueo`, `seguimiento`, `deploy`, `consulta`
 - **outlook**: `solicitud`, `info`, `urgente`, `seguimiento`, `revision`, `entrega`
 - **security**: `redirect`, `log`, `hsts`, `xss`, `sca`, `sanitizers`
+- **perfiles**: `ruta`, `proyecto`, `matriz`
 
 Cuando se invoque un skill, leer el archivo correspondiente en `~/.claude/skills/[nombre].md`
 

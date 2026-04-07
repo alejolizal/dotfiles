@@ -5,6 +5,7 @@ return {
   {
     "stevearc/oil.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
+    lazy = false,
     opts = {
       -- Oil toma control de buffers de directorio
       default_file_explorer = true,
@@ -96,7 +97,7 @@ return {
 
       -- Opciones de vista
       view_options = {
-        show_hidden = true,
+        show_hidden = false,
         is_hidden_file = function(name, bufnr)
           return vim.startswith(name, ".")
         end,

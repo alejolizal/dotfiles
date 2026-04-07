@@ -106,24 +106,30 @@ return {
       )
 
       -- Configuración de Java Debug Remoto (para Spring Boot)
-      -- Usa el adapter "java" registrado por jdtls.setup_dap()
-      -- Requiere: 1) tener un .java abierto (para que jdtls arranque)
-      --           2) la app corriendo con -agentlib:jdwp (./scripts/run-debug.sh)
+      -- Esto permite conectar a aplicaciones Java corriendo en modo debug
+      dap.adapters.java_remote = function(callback)
+        callback({
+          type = "server",
+          host = "127.0.0.1",
+          port = 5005,
+        })
+      end
+
       dap.configurations.java = dap.configurations.java or {}
       table.insert(dap.configurations.java, {
-        type = "java",
+        type = "java_remote",
         request = "attach",
-        name = "Attach to see-ms (port 5005)",
+        name = "Attach to siimple-ms (port 5005)",
         hostName = "127.0.0.1",
         port = 5005,
       })
       table.insert(dap.configurations.java, {
-        type = "java",
+        type = "java_remote",
         request = "attach",
         name = "Attach to Remote Java (custom port)",
         hostName = "127.0.0.1",
         port = function()
-          return tonumber(vim.fn.input("Port: ", "5005"))
+          return vim.fn.input("Port: ", "5005")
         end,
       })
     end,

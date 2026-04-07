@@ -21,10 +21,6 @@ vim.g.clipboard = {
 -- Usar clipboard del sistema para todas las operaciones yank/paste
 vim.opt.clipboard = "unnamedplus"
 
--- Separadores de split más visibles
-vim.opt.fillchars:append({ vert = "│", horiz = "─", horizup = "┴", horizdown = "┬", vertleft = "┤", vertright = "├", verthoriz = "┼" })
-vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#7aa2f7", bold = true })
-
 -- Cambiar automáticamente el cwd al root del proyecto detectado
 vim.g.root_spec = { "lsp", { ".git", "lua" }, "cwd" }
 vim.opt.autochdir = false  -- No usar autochdir nativo

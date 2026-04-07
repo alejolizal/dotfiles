@@ -1,50 +1,57 @@
+# If you come from bash you might have to change your $PATH.
+# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
+# Sin tema de OMZ - Oh My Posh se encarga del prompt
+ZSH_THEME=""
+
+export CENTAURI_DB_URL="postgresql://centauri:6tT552j.d@hamal.sii.cl:5432/dbcentauri"
+
 plugins=(git 
+	z 
 	docker-compose 
 	zsh-syntax-highlighting
         zsh-autosuggestions)
 
 source $ZSH/oh-my-zsh.sh
-
-# Optimizar compinit: solo reconstruir cache si tiene más de 24h
-autoload -Uz compinit
-if [ "$(find ~/.zcompdump -mtime +1 2>/dev/null)" ]; then
-  compinit
-else
-  compinit -C
-fi
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#8a8fa3"
 
-export EDITOR="nvim"
+# Personal PATH prioritario
+export PATH=$HOME/.local/bin:/home/alejoliz/.opencode/bin:$PATH
 
-# Personal PATH
-export PATH=$HOME/.local/bin:$HOME/.opencode/bin:$PATH
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# Oh My Posh - prompt
+# eval "$(oh-my-posh init zsh --config ~/.mytheme.omp.json)"
+# eval "$(oh-my-posh init zsh --config https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/clean-detailed.omp.json)"
+eval "$(oh-my-posh init zsh --config ~/.mytheme.omp.yaml)"
+
+# Editor
+export EDITOR="nvim --wait"
+
+#path de golang
+export PATH=/usr/local/go/bin:$PATH
+
+# Alias para nvim (snap)
+alias nvim="/snap/bin/nvim"
 
 setopt complete_in_word
+autoload -Uz compinit && compinit
 
-#esta es la instalacion de zoxide
 eval "$(zoxide init zsh)"
 
-#instalacion de oh my posh
-eval "$(oh-my-posh init zsh --config ~/omp/myconfig.omp.json)"
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-# nvm (lazy loading para arranque rápido)
 export NVM_DIR="$HOME/.nvm"
-nvm() {
-  unset -f nvm node npm npx
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-  nvm "$@"
-}
-node() { nvm; node "$@"; }
-npm() { nvm; npm "$@"; }
-npx() { nvm; npx "$@"; }
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+export PATH="$HOME/.local/bin:$PATH"
+# export LD_LIBRARY_PATH=/usr/lib/oracle/23/client64/lib:$LD_LIBRARY_PATH
+# export TNS_ADMIN=~/oracle
+# alias devx-db='sqlplus $(cat ~/.oracle/devx)'
 
-export PATH=$PATH:/usr/local/lib/go/bin
+. "$HOME/.atuin/bin/env"
 
-# SDKMAN (descomentar cuando se necesite)
-#export SDKMAN_DIR="$HOME/.sdkman"
-#[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+eval "$(atuin init zsh)"

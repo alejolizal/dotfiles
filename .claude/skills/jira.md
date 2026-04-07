@@ -9,12 +9,19 @@ Genera tickets JIRA con plantillas corporativas.
 
 ## Tipos disponibles
 
-| Comando | Tipo | Descripción |
-|---------|------|-------------|
-| `/jira req` | Requerimiento | Nuevas funcionalidades |
-| `/jira ops` | Labor Operativa | Mantenimiento, configuraciones |
-| `/jira bug` | Reporte de Error | Bugs y problemas |
-| `/jira deploy` | Instalación | Despliegues en ambientes |
+| Comando | Tipo | Prefijo título | Descripción |
+|---------|------|----------------|-------------|
+| `/jira req` | Requerimiento | `[REQ]` | Nuevas funcionalidades |
+| `/jira ops` | Labor Operativa | `[OPS]` | Mantenimiento, configuraciones |
+| `/jira bug` | Reporte de Error | `[BUG]` | Bugs y problemas |
+| `/jira deploy` | Instalación | `[DEPLOY]` | Despliegues en ambientes |
+| `/jira dseguro` | Seguridad | `[DSeguro]` | Visto bueno de seguridad |
+| `/jira rds` | Revisión de Diseño | `[RDS]` | Revisión de Diseño de Software |
+| `/jira sap` | Solicitud SAP | `[SAP]` | Solicitudes SAP |
+| `/jira rec` | REC Tradicional | `[REC]` | Paso a producción estándar |
+| `/jira rec-backend` | REC Backend | `[REC]` | REC para Batch, Nóminas, SQL, API, Servicios |
+| `/jira rec-fasttrack` | REC Fast Track | `[REC]` | Paso urgente por incidencia o vulnerabilidad |
+| `/jira trazabilidad` | Trazabilidad | `[Trazabilidad]` | No aplica trazabilidad |
 
 Si no se especifica tipo, preguntar al usuario.
 
@@ -91,6 +98,12 @@ Contenido del panel
 |celda 3|celda 4|
 ```
 
+### Imágenes adjuntas
+```
+!nombre-archivo.png!
+```
+NO usar `|thumbnail` ni doble `!¡`. Solo `!nombre.png!` — JIRA muestra la imagen adjunta automáticamente.
+
 ### Emojis
 ```
 :)  :(  :P  (y)  (n)  (!)  (?)  (*)
@@ -114,12 +127,25 @@ Cuando el usuario solicite crear un JIRA:
 
 *Nota:* Cuando el usuario pida "formato JIRA" o contenido para pegar en JIRA, usar la sintaxis de formateo JIRA (h1., *, ||tablas||, {code}, etc.) en lugar de Markdown.
 
+## Reglas de Formato Aprendidas
+
+1. *Títulos:* Formato obligatorio en dos partes:
+   - Primero el tipo entre corchetes: `[OPS]`, `[REQ]`, `[BUG]`, `[DEPLOY]`, `[RDS]`, `[DSeguro]`, `[SAP]`, `[REC]`
+   - Luego contexto entre corchetes: `[ambiente-aplicación-acción]`
+   - Luego un título genérico y descriptivo (con tildes y gramática correcta)
+   - Ejemplo: `[OPS] [CERX-eventos-ms-Limpieza Properties] Configuración properties`
+   - Ejemplo: `[REQ] [DEVX-siimple-ms-Nuevo Endpoint] Consulta de alertas por período`
+   - Ejemplo: `[BUG] [PROD-eventos-batch-Fix] Corrección carga masiva CSV`
+2. *Endpoints y código:* Usar `h4.` como subtítulo + `{noformat}` para bloques de endpoints, rutas o código. NO meter endpoints en tablas ni usar `{code}` dentro de `{panel}`.
+3. *Notas destacadas:* Usar `{panel:title=Título|borderStyle=dashed|borderColor=#ccc|bgColor=#ffffce}` para notas importantes o advertencias.
+4. *Tablas:* Solo para datos tabulares simples (campo-valor, severidad-cantidad). NO para listar endpoints o paths largos.
+
 ---
 
 ## Plantilla: Requerimiento
 
 ```
-**Titulo:** [REQ] [Nombre aplicacion] - Descripcion breve del requerimiento
+**Titulo:** [REQ] [Nombre aplicacion] - Descripcion breve
 
 **Solicitante**
 - Area: [nombre del area de negocio]
@@ -408,6 +434,115 @@ Contactos a notificar:
 - [ ] Guia de instalacion
 - [ ] Cambios en APIs
 - [ ] Actualizacion de manuales
+```
+
+---
+
+## Plantilla: REC Tradicional
+
+```
+**Titulo:** [REC] [Nombre Aplicacion] - Paso a produccion
+
+h2. Antecedentes Obligatorios
+
+||#||Requisito||Detalle||Estado||
+|1|Nombre Iniciativa EA|[nombre de la iniciativa]|(/) Cumple / (x) Pendiente|
+|2|Version o Hash de la App|{{[version o hash]}}|(/) Cumple / (x) Pendiente|
+|3|Jira SAP|SDI-XXXXXX|(/) Cumple / (x) Pendiente|
+|4|Jira Trazabilidad Legacy o Cloud|SDI-XXXXXX _(Certificada y Aprobada)_|(/) Cumple / (x) Pendiente|
+|5|Jira de Instalacion en Certificacion|SDI-XXXXXX|(/) Cumple / (x) Pendiente|
+|6|Plan de Pruebas Formato AAC|[adjunto o link]|(/) Cumple / (x) Pendiente|
+|7|Evidencias de Certificacion|[adjunto o link]|(/) Cumple / (x) Pendiente|
+|8|V°B° Usuario|Version: {{[version]}}|(/) Cumple / (x) Pendiente|
+|9|JIRA de Comite Tecnico|SDI-XXXXXX|(/) Cumple / (x) Pendiente|
+|10|V°B° Arquitectura RDS|SDI-XXXXXX - Version: {{[version]}}|(/) Cumple / (x) Pendiente|
+|11|V°B° Jira DSEGURO|SDI-XXXXXX - Version: {{[version]}}|(/) Cumple / (x) Pendiente|
+|12|V°B° Arquitectura de Datos MDS|SDI-XXXXXX - Version: {{[version]}}|(/) Cumple / (x) Pendiente|
+```
+
+---
+
+## Plantilla: REC Backend (Batch, Nominas, SQL, API, Servicios)
+
+```
+**Titulo:** [REC] [Nombre Aplicacion] - Paso a produccion (Backend)
+
+h2. Antecedentes Obligatorios
+
+||#||Requisito||Detalle||Estado||
+|1|Nombre Iniciativa EA|[nombre de la iniciativa]|(/) Cumple / (x) Pendiente|
+|2|Version o Hash de la App|{{[version o hash]}}|(/) Cumple / (x) Pendiente|
+|3|Jira SAP|SDI-XXXXXX|(/) Cumple / (x) Pendiente|
+|4|Jira de Instalacion en Certificacion|SDI-XXXXXX|(/) Cumple / (x) Pendiente|
+|5|Plan de Pruebas Formato AAC|[adjunto o link]|(/) Cumple / (x) Pendiente|
+|6|Evidencias de Certificacion|[adjunto o link]|(/) Cumple / (x) Pendiente|
+|7|V°B° Usuario|Version: {{[version]}}|(/) Cumple / (x) Pendiente|
+|8|V°B° Arquitectura RDS|SDI-XXXXXX - Version: {{[version]}}|(/) Cumple / (x) Pendiente|
+|9|V°B° Jira DSEGURO|SDI-XXXXXX - Version: {{[version]}}|(/) Cumple / (x) Pendiente|
+```
+
+---
+
+## Plantilla: REC Fast Track
+
+```
+**Titulo:** [REC] Fast Track - [Nombre Aplicacion] - [Incidencia Funcional / Vulnerabilidad]
+
+{panel:title=Mecanismo Excepcional|borderStyle=dashed|borderColor=#ccc|bgColor=#ffffce}
+El Jira REC Fast Track corresponde a un mecanismo excepcional destinado a atender situaciones urgentes en ambiente productivo, las cuales requieren una validacion acotada y acelerada, sin seguir el proceso completo de certificacion estandar.
+
+*Condicion habilitante (obligatoria):* Debe existir previamente un Jira de Incidencia Productiva o un Jira de Incidencia de Vulnerabilidad, gestionado por las areas de Produccion y/o Seguridad.
+
+*Alcance:* La solucion debe ser estrictamente acotada a la correccion de la incidencia reportada. No esta permitido incorporar nuevas mejoras, funcionalidades adicionales, refactorizaciones u otros cambios no relacionados con la incidencia.
+{panel}
+
+----
+
+h2. Variante 1: Incidencia Funcional (Continuidad Operativa)
+
+||#||Requisito||Detalle||Estado||
+|1|Jira de Incidencia Funcional|SDI-XXXXXX _(generado por Produccion o Monitoreo)_|(/) Cumple / (x) Pendiente|
+|2|Instalacion en Ambiente de Certificacion|SDI-XXXXXX _(en caso de no contar con CERX, puede usarse DEV excepcionalmente)_|(/) Cumple / (x) Pendiente|
+|3|Evidencia de Certificacion|[adjunto o link] _(debe indicar explicitamente que el inconveniente fue resuelto, certificada por usuario de negocio)_|(/) Cumple / (x) Pendiente|
+|4|V°B° Usuario de Negocio|Version: {{[version]}}|(/) Cumple / (x) Pendiente|
+|5|V°B° Jira DSEGURO|SDI-XXXXXX - Version: {{[version]}}|(/) Cumple / (x) Pendiente|
+
+----
+
+h2. Variante 2: Vulnerabilidad
+
+||#||Requisito||Detalle||Estado||
+|1|Jira de Incidencia de Vulnerabilidad|SDI-XXXXXX _(generado por el area de Seguridad)_|(/) Cumple / (x) Pendiente|
+|2|Instalacion en Ambiente de Certificacion|SDI-XXXXXX _(en caso de no contar con CERX, puede usarse DEV excepcionalmente)_|(/) Cumple / (x) Pendiente|
+|3|Evidencia de Mitigacion de Vulnerabilidad|[adjunto o link] _(Ethical Hacking, AppScan, Checkmarx)_|(/) Cumple / (x) Pendiente|
+|4|V°B° Jira DSEGURO|SDI-XXXXXX - Version: {{[version]}}|(/) Cumple / (x) Pendiente|
+```
+
+---
+
+## Plantilla: Trazabilidad (No Aplica)
+
+```
+**Titulo:** [Trazabilidad] [Nombre Aplicacion] - No aplica trazabilidad
+
+h2. Antecedentes
+[Descripción de la aplicación y su rol]
+
+h2. Justificación de No Aplicabilidad
+* [Razón 1]
+* [Razón 2]
+
+{panel:title=Nota|borderStyle=dashed|borderColor=#ccc|bgColor=#ffffce}
+[Justificación formal de por qué no aplica trazabilidad]
+{panel}
+
+h2. Arquitectura de Referencia
+{noformat}
+[Diagrama de flujo mostrando la posición del componente]
+{noformat}
+
+h2. Conclusión
+(/) Se deja constancia de que [aplicación] no aplica para el requisito de trazabilidad.
 ```
 
 ---

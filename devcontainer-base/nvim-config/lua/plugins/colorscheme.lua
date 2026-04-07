@@ -5,10 +5,6 @@ return {
       style = "night", -- night, storm, day, moon
       transparent = false,
       terminal_colors = true,
-      on_highlights = function(hl, c)
-        -- Separadores de split más visibles (azul tokyonight)
-        hl.WinSeparator = { fg = c.blue, bold = true }
-      end,
     },
   },
 

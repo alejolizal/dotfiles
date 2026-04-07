@@ -70,7 +70,8 @@ dotfiles/
 │       └── lua/...
 ├── terminal/                  # Paquete Stow para shell
 │   ├── .zshrc                 # -> ~/.zshrc
-│   └── .p10k.zsh              # -> ~/.p10k.zsh
+│   ├── .p10k.zsh              # -> ~/.p10k.zsh
+│   └── .claude.omp.json       # -> ~/.claude.omp.json (tema Oh My Posh para Claude)
 ├── wezterm/                   # Paquete Stow para WezTerm
 │   └── .wezterm.lua           # -> ~/.wezterm.lua
 ├── git/                       # Paquete Stow para Git
@@ -78,6 +79,10 @@ dotfiles/
 ├── lazygit/                   # Paquete Stow para Lazygit
 │   └── .config/lazygit/       # -> ~/.config/lazygit
 │       └── config.yml
+├── .claude/                   # Configuración de Claude Code CLI
+│   ├── CLAUDE.md              # -> ~/.claude/CLAUDE.md (instrucciones globales)
+│   ├── settings.json          # -> ~/.claude/settings.json (config global)
+│   └── skills/                # -> ~/.claude/skills/ (skills personalizados)
 ├── mason/                     # Configuración de Mason (placeholder)
 ├── scripts/                   # Scripts útiles
 └── tools/                     # Otras herramientas
@@ -106,6 +111,8 @@ cd ~/dev/dotfiles
 # Aplicar todos los paquetes (-t ~ especifica home como target)
 stow -t ~ nvim terminal git wezterm lazygit
 
+# Nota: .claude requiere symlinks manuales (ver sección "Configurar Claude Code CLI")
+
 # O individualmente:
 # stow -t ~ nvim       # Crea ~/.config/nvim
 # stow -t ~ terminal   # Crea ~/.zshrc y ~/.p10k.zsh
@@ -131,6 +138,28 @@ stow -t ~ -n nvim     # Dry-run (ver qué haría sin ejecutar)
 ```
 
 Al abrir Neovim por primera vez, LazyVim instalará automáticamente todos los plugins según las versiones fijadas en `lazy-lock.json`.
+
+### Configurar Claude Code CLI
+
+Claude Code requiere symlinks manuales para el directorio `.claude` ya existente:
+
+```bash
+cd ~/dotfiles
+
+# Aplicar tema Oh My Posh (incluido en terminal/)
+stow -t ~ terminal
+
+# Symlinks manuales para .claude (el directorio ya existe con datos de sesión)
+ln -sf ~/dotfiles/.claude/CLAUDE.md ~/.claude/CLAUDE.md
+ln -sf ~/dotfiles/.claude/settings.json ~/.claude/settings.json
+ln -sf ~/dotfiles/.claude/skills ~/.claude/skills
+```
+
+La configuración incluye:
+- **settings.json**: Permisos, idioma y status line con Oh My Posh
+- **CLAUDE.md**: Instrucciones globales (reglas Java/Spring, skills, seguridad)
+- **skills/**: Skills personalizados (jira, teams, outlook, security)
+- **.claude.omp.json**: Tema Oh My Posh que muestra modelo, tokens y costo
 
 ### Configurar Java (opcional)
 

@@ -45,6 +45,21 @@ export EDITOR="nvim --wait"
 alias nvim="/snap/bin/nvim"
 # Aliases para herramientas modernas con nombres raros en Ubuntu
 alias fd='fdfind'
+alias bat='batcat'
+
+# Buscar y abrir markdown del proyecto
+fmd() {
+  local file
+  file=$(fd -e md | fzf --preview 'bat --color=always {}')
+  [[ -n "$file" ]] && nvim "$file"
+}
+
+# Buscar y abrir cualquier archivo del proyecto
+ffp() {
+  local file
+  file=$(fd --type f | fzf --preview 'bat --color=always {}')
+  [[ -n "$file" ]] && nvim "$file"
+}
 
 # setopt complete_in_word
 # autoload -Uz compinit && compinit

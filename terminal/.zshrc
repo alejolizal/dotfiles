@@ -43,6 +43,8 @@ export EDITOR="nvim --wait"
 
 # Alias para nvim (snap)
 alias nvim="/snap/bin/nvim"
+# Aliases para herramientas modernas con nombres raros en Ubuntu
+alias fd='fdfind'
 
 # setopt complete_in_word
 # autoload -Uz compinit && compinit

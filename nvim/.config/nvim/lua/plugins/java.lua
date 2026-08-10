@@ -1,4 +1,5 @@
--- Configurar jdtls para usar Java 21 con soporte de debugging
+-- Configurar jdtls para usar Java 25 (LTS) con soporte de debugging
+-- JDK 25 analiza también código Java 17 y 21 sin problema
 return {
   {
     "mfussenegger/nvim-jdtls",
@@ -6,8 +7,8 @@ return {
       "mfussenegger/nvim-dap",
     },
     opts = function(_, opts)
-      -- Asegurar que JAVA_HOME apunte a Java 21 para jdtls
-      vim.env.JAVA_HOME = vim.fn.expand("~/.sdkman/candidates/java/21.0.9-tem")
+      -- JAVA_HOME para el LSP jdtls
+      vim.env.JAVA_HOME = vim.fn.expand("~/.sdkman/candidates/java/25.0.2-tem")
 
       -- Configurar bundles de debugging
       local mason_registry = require("mason-registry")

@@ -6,6 +6,7 @@ return {
     cmd = { "Rest" },
     dependencies = {
       "nvim-lua/plenary.nvim",
+      "j-hui/fidget.nvim",
     },
     config = function()
       -- Auto-registrar env file al abrir .http
@@ -23,9 +24,20 @@ return {
         end,
       })
 
+      -- Formatear JSON responses con jq (rest.nvim llama `gq` cuando format=true;
+      -- `gq` respeta formatprg del filetype del buffer de respuesta)
+      if vim.fn.executable("jq") == 1 then
+        vim.api.nvim_create_autocmd("FileType", {
+          pattern = "json",
+          callback = function()
+            vim.opt_local.formatprg = "jq ."
+          end,
+        })
+      end
+
       require("rest-nvim").setup({
         request = {
-          skip_ssl_verification = false,
+          skip_ssl_verification = true,
           hooks = {
             encode_url = true,
             set_content_type = true,

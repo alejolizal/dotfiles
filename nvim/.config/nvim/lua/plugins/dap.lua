@@ -108,14 +108,21 @@ return {
       -- Configuración de Java Debug Remoto (para Spring Boot)
       -- Usa el adapter "java" registrado por jdtls.setup_dap()
       -- Requiere: 1) tener un .java abierto (para que jdtls arranque)
-      --           2) la app corriendo con -agentlib:jdwp (./scripts/run-debug.sh)
+      --           2) la app corriendo con -agentlib:jdwp (ej. ./scripts/run-debug.sh)
       dap.configurations.java = dap.configurations.java or {}
       table.insert(dap.configurations.java, {
         type = "java",
         request = "attach",
-        name = "Attach to see-ms (port 5005)",
+        name = "Attach to ms (port 5005)",
         hostName = "127.0.0.1",
         port = 5005,
+      })
+      table.insert(dap.configurations.java, {
+        type = "java",
+        request = "attach",
+        name = "Attach to batch (port 5006)",
+        hostName = "127.0.0.1",
+        port = 5006,
       })
       table.insert(dap.configurations.java, {
         type = "java",
@@ -138,5 +145,44 @@ return {
   -- Virtual text mostrando valores de variables
   {
     "theHamsta/nvim-dap-virtual-text",
+  },
+
+  -- Adaptador de Python para DAP
+  {
+    "mfussenegger/nvim-dap-python",
+    dependencies = { "mfussenegger/nvim-dap" },
+    config = function()
+      local dap_python = require("dap-python")
+      -- Ruta al Python que tiene debugpy instalado
+      dap_python.setup("~/.virtualenvs/debugpy/bin/python")
+
+      -- Agregar configuraciones útiles para Python
+      local dap = require("dap")
+      dap.configurations.python = dap.configurations.python or {}
+
+      -- Ejecutar archivo actual con argumentos
+      table.insert(dap.configurations.python, {
+        type = "python",
+        request = "launch",
+        name = "Launch file (with args)",
+        program = "${file}",
+        args = function()
+          local args_string = vim.fn.input("Arguments: ")
+          return vim.split(args_string, " +")
+        end,
+        console = "integratedTerminal",
+      })
+
+      -- Ejecutar módulo (ej: python -m pytest)
+      table.insert(dap.configurations.python, {
+        type = "python",
+        request = "launch",
+        name = "Run module",
+        module = function()
+          return vim.fn.input("Module name: ")
+        end,
+        console = "integratedTerminal",
+      })
+    end,
   },
 }

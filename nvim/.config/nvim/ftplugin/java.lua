@@ -1,5 +1,5 @@
--- Configurar jdtls para usar Java 21 específicamente
--- Este archivo se ejecuta automáticamente cuando abres un archivo .java
+-- Configurar jdtls para usar Java 25 (runtime del LSP)
+-- JDK 25 puede analizar código de versiones anteriores (17, 21, 25) sin problema,
+-- así que este setting sirve para los tres módulos del repo.
 
--- Establecer JAVA_HOME para jdtls
-vim.env.JAVA_HOME = vim.fn.expand("~/.sdkman/candidates/java/21.0.9-tem")
+vim.env.JAVA_HOME = vim.fn.expand("~/.sdkman/candidates/java/25.0.2-tem")

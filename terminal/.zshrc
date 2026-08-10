@@ -8,6 +8,7 @@ export ZSH="$HOME/.oh-my-zsh"
 typeset -U path
 path=(
   $HOME/.local/bin
+  $HOME/.deno/bin
   /usr/local/go/bin
   $path
 )
@@ -36,7 +37,7 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#8a8fa3"
 eval "$(oh-my-posh init zsh --config ~/.mytheme.omp.yaml)"
 
 # Editor
-export EDITOR="nvim --wait"
+export EDITOR="nvim"
 
 #path de golang:wait
 # export PATH=/usr/local/go/bin:$PATH
@@ -66,9 +67,6 @@ ffp() {
 
 eval "$(zoxide init zsh)"
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 
 # export PATH="$HOME/.local/bin:$PATH"
@@ -81,4 +79,23 @@ export SDKMAN_DIR="$HOME/.sdkman"
 eval "$(atuin init zsh)"
 # --- Config local (secretos, máquina-específico, no versionar) ---
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# uv y Python: trust store del sistema + ajustes para proxy Forcepoint del SII
+# - UV_NATIVE_TLS / SSL_CERT_FILE: confiar en el CA institucional
+# - OPENSSL_CONF: forzar grupos clásicos (sin ML-KEM PQC, que el proxy no procesa)
+export UV_NATIVE_TLS=1
+export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+export OPENSSL_CONF=$HOME/.config/openssl/classic.cnf
+
+# kimi: restaura sitecustomize.py si un upgrade del venv lo borró
+kimi() {
+    local sc="$HOME/.local/share/uv/tools/kimi-cli/lib/python3.13/site-packages/sitecustomize.py"
+    [[ -f "$sc" ]] || cp "$HOME/.config/kimi-fix/sitecustomize.py" "$sc"
+    command kimi "$@"
+}
+
 # zprof
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
